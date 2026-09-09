@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eval harness</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--paper:#f5f5f5;--ink:#2d3142;--muted:#4f5d75}
+body{font-family:'Geist',system-ui,sans-serif;background:var(--paper);color:var(--ink);
+min-height:100vh;display:flex;align-items:center;justify-content:center;padding:3rem 2rem}
+.frame{max-width:1200px;width:100%}
+.eyebrow{font-family:'Geist Mono',monospace;font-size:.66rem;font-weight:500;
+letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem}
+h1{font-family:'Geist',sans-serif;font-size:1.5rem;font-weight:600;
+letter-spacing:-.01em;line-height:1.2;margin-bottom:1.5rem}
+svg{width:100%;display:block}
+</style></head>
+<body><div class="frame"><p class="eyebrow">Architecture · evaluation</p><h1>One golden set, three runners, one judge</h1>
+<svg viewBox="0 0 1120 536" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="eval-harness-title eval-harness-desc">
+<title id="eval-harness-title">Eval harness</title>
+<desc id="eval-harness-desc">A golden set of cases in the repository drives pytest for interlocks, deepeval for component metrics and promptfoo for the gate matrix, against a pinned system under test, with a local judge model grading only the LLM-graded metrics.</desc>
+<defs>
+<pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+<circle cx="1" cy="1" r="0.9" fill="rgba(45,49,66,0.10)"/></pattern>
+<marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+<marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+<marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+</defs>
+<rect width="100%" height="100%" fill="#f5f5f5"/>
+<rect width="100%" height="100%" fill="url(#dots)" opacity="0.55"/>
+<rect x="296" y="48" width="272" height="384" rx="8" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+<rect x="312" y="52" width="72" height="12" rx="2" fill="#f5f5f5"/>
+<text x="348" y="61" fill="rgba(45,49,66,0.40)" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.14em">RUNNERS</text>
+<path d="M 240,244 H 272 Q 280,244 280,236 V 132 Q 280,124 288,124 H 316" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<line x1="240" y1="244" x2="316" y2="244" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M 240,244 H 272 Q 280,244 280,252 V 356 Q 280,364 288,364 H 316" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M 544,124 H 580 Q 588,124 588,132 V 234" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<line x1="544" y1="244" x2="584" y2="244" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M 544,364 H 580 Q 588,364 588,356 V 254" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<circle cx="588" cy="244" r="4" fill="#2d3142"/>
+<line x1="592" y1="244" x2="628" y2="244" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<line x1="840" y1="244" x2="892" y2="244" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<rect x="838" y="226" width="56" height="12" rx="2" fill="#f5f5f5"/><text x="866" y="235" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">RESULT</text>
+<line x1="736" y1="312" x2="736" y2="364" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M 840,412 H 980 Q 988,412 988,404 V 316" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<rect x="40" y="176" width="200" height="136" rx="6" fill="#f5f5f5"/>
+<rect x="40" y="176" width="200" height="136" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+<rect x="48" y="184" width="92" height="12" rx="2" fill="none" stroke="#eb6c36" stroke-opacity="0.4" stroke-width="0.8"/>
+<text x="94" y="193" fill="#eb6c36" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">GOLDEN SET</text>
+<text x="140" y="223" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" text-anchor="middle">retrieval</text>
+<text x="140" y="237" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" text-anchor="middle">correctness</text>
+<text x="140" y="251" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" text-anchor="middle">refusal</text>
+<text x="140" y="265" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" text-anchor="middle">injection</text>
+<rect x="320" y="80" width="224" height="88" rx="6" fill="#f5f5f5"/>
+<rect x="320" y="80" width="224" height="88" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+<text x="432" y="120" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">pytest</text>
+<text x="432" y="136" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">the interlocks</text>
+<rect x="320" y="200" width="224" height="88" rx="6" fill="#f5f5f5"/>
+<rect x="320" y="200" width="224" height="88" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+<text x="432" y="240" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">deepeval</text>
+<text x="432" y="256" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">component metrics</text>
+<rect x="320" y="320" width="224" height="88" rx="6" fill="#f5f5f5"/>
+<rect x="320" y="320" width="224" height="88" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+<text x="432" y="360" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">promptfoo</text>
+<text x="432" y="376" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">the gate matrix</text>
+<rect x="632" y="176" width="208" height="136" rx="6" fill="#f5f5f5"/>
+<rect x="632" y="176" width="208" height="136" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+<text x="736" y="230" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" text-anchor="middle">interlock code</text>
+<text x="736" y="244" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" text-anchor="middle">the agent</text>
+<text x="736" y="258" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" text-anchor="middle">pinned + fixtures</text>
+<rect x="632" y="368" width="208" height="88" rx="6" fill="#f5f5f5"/>
+<rect x="632" y="368" width="208" height="88" rx="6" fill="rgba(235,108,54,0.05)" stroke="rgba(235,108,54,0.50)" stroke-width="1" stroke-dasharray="4,3"/>
+<text x="736" y="408" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Judge model</text>
+<text x="736" y="424" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">local, calibrated</text>
+<rect x="896" y="176" width="184" height="136" rx="6" fill="#f5f5f5"/>
+<rect x="896" y="176" width="184" height="136" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+<text x="988" y="230" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" text-anchor="middle">pass rate</text>
+<text x="988" y="244" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" text-anchor="middle">per release</text>
+<text x="988" y="258" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" text-anchor="middle">exit code</text>
+<text x="752" y="344" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="start">LLM-graded metrics only</text>
+<text x="736" y="164" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">SYSTEM UNDER TEST</text>
+<text x="988" y="164" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">RESULTS</text>
+<text x="40" y="496" fill="#4f5d75" font-size="11.5" font-family="'Geist', sans-serif" text-anchor="start">The golden set is data in the repo, not configuration inside a tool — so the same cases feed all three runners. xyOps schedules the run and keeps the trend.</text>
+</svg>
+</div></body></html>

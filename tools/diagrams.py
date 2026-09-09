@@ -318,6 +318,93 @@ emit("guardrails", eyebrow="Layer stack · guardrails",
      desc="Seven guardrail layers from the system prompt down to the evaluation gate, with "
           "the prompt layer marked as the only persuadable one.")
 
+# ------------------------------------------------------- 11. Test levels
+rows = [
+    ("00", "No tenant, every PR", "interlocks · mocked connectors · frozen corpus", False),
+    ("01", "No tenant, nightly", "golden set × N runs · pass rate · chain verifies", True),
+    ("02", "Test environment", "connectors · permissions · one real path per agent", False),
+    ("03", "Deployment environment", "smoke only — never where something is first discovered", False),
+]
+b = [caption(112, 96, "cheap, constant", "end", SOFT, 8.5),
+     caption(112, 344, "costly, rare", "end", SOFT, 8.5),
+     raw("M 104,112 V 324", SOFT, 1)]
+y = 88
+for idx, name, sub, focal in rows:
+    b.append(band(152, y, 808, 64, idx, name, sub, focal))
+    y += 72
+b.append(note(152, 408, "Level 01 is the one that does not exist yet, and the one that decides "
+                        "whether any of the rest is a gate or a ritual."))
+emit("test-levels", eyebrow="Layer stack · evaluation",
+     heading="Where an agent gets tested, and what each level catches",
+     title="Agent test levels", width=1000, height=448, body="\n".join(b),
+     desc="Four test levels from interlock unit tests with no tenant on every pull request, "
+          "through a nightly golden-set run gated on pass rate, to smoke tests in the "
+          "deployment environment.")
+
+# ------------------------------------------------------ 12. Current stack
+rows = [
+    ("07", "Delivery", "GitHub → pac CLI on the tenant laptop → Copilot Studio · Dataverse", False),
+    ("06", "Operations", "xyOps schedules · control room measures layers.json · Tailscale", False),
+    ("05", "Governance", "hash-chained audit · capability scope · approval gates · boundaries", True),
+    ("04", "Applications", "GT-Code · GT Assure · GT Proposal · IH Pilot · forensics agent", False),
+    ("03", "Orchestration", "glassbox patterns · Copilot Studio topics · Power Automate · MCP", False),
+    ("02", "Retrieval", "Chroma · SQLite + nomic-embed · literal lookup · per-engagement index", False),
+    ("01", "Inference", "Ollama — qwen3 14b / 8b · qwen2.5 3b / 1.5b · nomic-embed, Apache-2.0", False),
+    ("00", "Machines", "Mac mini, sovereign · Windows laptop, tenant · nothing shared but git", False),
+]
+b = [caption(112, 96, "abstraction", "end", SOFT, 8.5),
+     caption(112, 640, "hardware", "end", SOFT, 8.5),
+     raw("M 104,112 V 620", SOFT, 1)]
+y = 88
+for idx, name, sub, focal in rows:
+    b.append(band(152, y, 808, 60, idx, name, sub, focal))
+    y += 68
+b.append(note(152, 700, "Layers 00–02 are deliberately boring and interchangeable. Layer 05 is "
+                        "the one that is not bought in, and the one every agent inherits."))
+emit("current-stack", eyebrow="Layer stack · what I run today",
+     heading="The stack as it stands",
+     title="Current stack", width=1000, height=744, body="\n".join(b),
+     desc="Eight layers of the stack in use today, from the two machines at the bottom through "
+          "local inference, retrieval, orchestration and the applications, to the governance "
+          "plane and the delivery path into the Microsoft tenant.")
+
+# ------------------------------------------------------- 13. Eval harness
+b = [
+    zone(296, 48, 272, 384, "RUNNERS"),
+    elbow(240, 244, 316, 124, mid=280),
+    arrow(240, 244, 316, 244),
+    elbow(240, 244, 316, 364, mid=280),
+    raw("M 544,124 H 580 Q 588,124 588,132 V 234"),
+    arrow(544, 244, 584, 244),
+    raw("M 544,364 H 580 Q 588,364 588,356 V 254"),
+    dot(588, 244),
+    arrow(592, 244, 628, 244),
+    arrow(840, 244, 892, 244, label="RESULT", ly=236),
+    arrow(736, 312, 736, 364),
+    raw("M 840,412 H 980 Q 988,412 988,404 V 316"),
+    node(40, 176, 200, 136, "", kind="focal", tag="GOLDEN SET",
+         lines=["retrieval", "correctness", "refusal", "injection"]),
+    node(320, 80, 224, 88, "pytest", "the interlocks", "backend"),
+    node(320, 200, 224, 88, "deepeval", "component metrics", "backend"),
+    node(320, 320, 224, 88, "promptfoo", "the gate matrix", "backend"),
+    node(632, 176, 208, 136, "", kind="backend",
+         lines=["interlock code", "the agent", "pinned + fixtures"]),
+    node(632, 368, 208, 88, "Judge model", "local, calibrated", "security"),
+    node(896, 176, 184, 136, "", kind="store",
+         lines=["pass rate", "per release", "exit code"]),
+    caption(752, 344, "LLM-graded metrics only", size=8.5),
+    caption(736, 164, "SYSTEM UNDER TEST", "middle", SOFT, 8),
+    caption(988, 164, "RESULTS", "middle", SOFT, 8),
+    note(40, 496, "The golden set is data in the repo, not configuration inside a tool — so the "
+                  "same cases feed all three runners. xyOps schedules the run and keeps the trend."),
+]
+emit("eval-harness", eyebrow="Architecture · evaluation",
+     heading="One golden set, three runners, one judge",
+     title="Eval harness", width=1120, height=536, body="\n".join(b),
+     desc="A golden set of cases in the repository drives pytest for interlocks, deepeval for "
+          "component metrics and promptfoo for the gate matrix, against a pinned system under "
+          "test, with a local judge model grading only the LLM-graded metrics.")
+
 print(f"{len(made)} diagrams -> {OUT}")
 for m in made:
     print("  ", m)

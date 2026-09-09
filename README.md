@@ -15,15 +15,16 @@ proposals. The tools themselves ship with synthetic data for exactly the same re
 
 ## The four notes
 
-Each is 4–5 pages, first person, with the diagrams that carry the argument and an honest
-section at the end on what I would want pushed on.
+Each is 3–6 pages and mostly diagrams and tables — the structure carries the argument, and
+each ends with an honest section on what I would want pushed on.
 
 | Note | What it covers | Source repo |
 |---|---|---|
 | **[GT-Code](pdf/gt-code.pdf)** | A coding agent that never leaves the machine: local model ladder, permission gate, confidence gate before a build | [`Starfish124/GT-code`](https://github.com/Starfish124/GT-code) |
 | **[GT Assure](pdf/gt-assure.pdf)** | AI-assisted control testing and sample testing, with the judgement left with a named reviewer | [`Starfish124/gt-assure`](https://github.com/Starfish124/gt-assure) |
 | **[GT Proposal](pdf/gt-proposal.pdf)** | Proposal drafting from won bids and pricing from recorded actuals — the model selects, the code counts | [`Starfish124/gt-proposal`](https://github.com/Starfish124/gt-proposal) |
-| **[Glassbox agents](pdf/glassbox-agents.pdf)** | The two-lane platform blueprint, the reference implementation, and the build I use to ship agents today | [`Starfish124/glassbox-agents`](https://github.com/Starfish124/glassbox-agents) |
+| **[Glassbox agents](pdf/glassbox-agents.pdf)** | The two-lane platform blueprint, the reference implementation, the stack I run, and how an agent reaches a tenant | [`Starfish124/glassbox-agents`](https://github.com/Starfish124/glassbox-agents) |
+| **[Testing complex agents](pdf/testing-agents.pdf)** | Golden sets, the eval harness (pytest · deepeval · promptfoo), where each test level runs, and the orchestration decision | — |
 
 Also in the family, and covered inside the notes rather than in their own: 
 [`gt-code-ih-pilot`](https://github.com/Starfish124/gt-code-ih-pilot) — offline, cited literature
@@ -82,6 +83,33 @@ test whose last line is a failure.
 
 ---
 
+## The stack I run on
+
+Layers 00–02 are deliberately unremarkable and interchangeable — open-weight models on Ollama,
+plain vector stores, nothing I could not replace in a week. Layer 05 is the one that is not
+bought in, and the one every new agent inherits for free.
+
+![Current stack](diagrams/png/current-stack.png)
+
+---
+
+## How agents get tested
+
+The golden set is data in the repository, not configuration inside a tool, so the same cases feed
+every runner and survive a tool change. `pytest` covers the interlocks, `deepeval` the component
+metrics — retrieval quality measured separately from answer quality — and `promptfoo` the gate
+matrix, refusal cases and red-team suites.
+
+![Eval harness](diagrams/png/eval-harness.png)
+
+![Test levels](diagrams/png/test-levels.png)
+
+Cases run N times and gate on a **pass rate**, not pass/fail. A single-run gate on a flaky case
+goes red or green at random, and a case dropping from ten out of ten to seven has regressed while
+still "passing".
+
+---
+
 ## Every diagram
 
 | | |
@@ -91,13 +119,15 @@ test whose last line is a failure.
 | [GT Proposal architecture](diagrams/png/gt-proposal-architecture.png) | [GT Proposal interlocks](diagrams/png/gt-proposal-interlocks.png) |
 | [Glassbox layer stack](diagrams/png/glassbox-layers.png) | [Two-lane routing](diagrams/png/glassbox-lanes.png) |
 | [Guardrail layers](diagrams/png/guardrails.png) | [Delivery stack](diagrams/png/delivery-stack.png) |
+| [Current stack](diagrams/png/current-stack.png) | [Eval harness](diagrams/png/eval-harness.png) |
+| [Test levels](diagrams/png/test-levels.png) | |
 
 ---
 
 ## Building it
 
 The diagrams are generated, not drawn, so a diagram and the note that explains it cannot drift
-apart. `tools/skin.py` is the renderer; `tools/diagrams.py` is the one file that defines all ten.
+apart. `tools/skin.py` is the renderer; `tools/diagrams.py` is the one file that defines all thirteen.
 
 ```bash
 python3 tools/diagrams.py     # diagrams/*.html
@@ -108,7 +138,7 @@ python3 tools/build_pdf.py    # pdf/*.pdf, inlining each diagram's SVG into the 
 No dependencies beyond the standard library and a local Chrome for rendering.
 
 The visual language follows [`cathrynlavery/diagram-design`](https://github.com/cathrynlavery/diagram-design)
-(MIT) — editorial skin, one accent per diagram, orthogonal connectors, a 4px grid.
+(MIT) — one accent per diagram, orthogonal connectors, a 4px grid. Two type families, no serif.
 
 ---
 

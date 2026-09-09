@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Current stack</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--paper:#f5f5f5;--ink:#2d3142;--muted:#4f5d75}
+body{font-family:'Geist',system-ui,sans-serif;background:var(--paper);color:var(--ink);
+min-height:100vh;display:flex;align-items:center;justify-content:center;padding:3rem 2rem}
+.frame{max-width:1200px;width:100%}
+.eyebrow{font-family:'Geist Mono',monospace;font-size:.66rem;font-weight:500;
+letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem}
+h1{font-family:'Geist',sans-serif;font-size:1.5rem;font-weight:600;
+letter-spacing:-.01em;line-height:1.2;margin-bottom:1.5rem}
+svg{width:100%;display:block}
+</style></head>
+<body><div class="frame"><p class="eyebrow">Layer stack · what I run today</p><h1>The stack as it stands</h1>
+<svg viewBox="0 0 1000 744" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="current-stack-title current-stack-desc">
+<title id="current-stack-title">Current stack</title>
+<desc id="current-stack-desc">Eight layers of the stack in use today, from the two machines at the bottom through local inference, retrieval, orchestration and the applications, to the governance plane and the delivery path into the Microsoft tenant.</desc>
+<defs>
+<pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+<circle cx="1" cy="1" r="0.9" fill="rgba(45,49,66,0.10)"/></pattern>
+<marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+<marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+<marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+</defs>
+<rect width="100%" height="100%" fill="#f5f5f5"/>
+<rect width="100%" height="100%" fill="url(#dots)" opacity="0.55"/>
+<text x="112" y="96" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="end">abstraction</text>
+<text x="112" y="640" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="end">hardware</text>
+<path d="M 104,112 V 620" fill="none" stroke="#7a8399" stroke-width="1" marker-end="url(#arrow)"/>
+<rect x="152" y="88" width="808" height="60" rx="4" fill="#ffffff" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+<text x="172" y="122" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" letter-spacing="0.14em">07</text>
+<text x="240" y="123" fill="#2d3142" font-size="14" font-weight="600" font-family="'Geist', sans-serif">Delivery</text>
+<text x="940" y="122" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" text-anchor="end">GitHub → pac CLI on the tenant laptop → Copilot Studio · Dataverse</text>
+<rect x="152" y="156" width="808" height="60" rx="4" fill="#ffffff" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+<text x="172" y="190" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" letter-spacing="0.14em">06</text>
+<text x="240" y="191" fill="#2d3142" font-size="14" font-weight="600" font-family="'Geist', sans-serif">Operations</text>
+<text x="940" y="190" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" text-anchor="end">xyOps schedules · control room measures layers.json · Tailscale</text>
+<rect x="152" y="224" width="808" height="60" rx="4" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.2"/>
+<text x="172" y="258" fill="#eb6c36" font-size="8.5" font-family="'Geist Mono', monospace" letter-spacing="0.14em">05</text>
+<text x="240" y="259" fill="#2d3142" font-size="14" font-weight="600" font-family="'Geist', sans-serif">Governance</text>
+<text x="940" y="258" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" text-anchor="end">hash-chained audit · capability scope · approval gates · boundaries</text>
+<rect x="152" y="292" width="808" height="60" rx="4" fill="#ffffff" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+<text x="172" y="326" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" letter-spacing="0.14em">04</text>
+<text x="240" y="327" fill="#2d3142" font-size="14" font-weight="600" font-family="'Geist', sans-serif">Applications</text>
+<text x="940" y="326" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" text-anchor="end">GT-Code · GT Assure · GT Proposal · IH Pilot · forensics agent</text>
+<rect x="152" y="360" width="808" height="60" rx="4" fill="#ffffff" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+<text x="172" y="394" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" letter-spacing="0.14em">03</text>
+<text x="240" y="395" fill="#2d3142" font-size="14" font-weight="600" font-family="'Geist', sans-serif">Orchestration</text>
+<text x="940" y="394" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" text-anchor="end">glassbox patterns · Copilot Studio topics · Power Automate · MCP</text>
+<rect x="152" y="428" width="808" height="60" rx="4" fill="#ffffff" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+<text x="172" y="462" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" letter-spacing="0.14em">02</text>
+<text x="240" y="463" fill="#2d3142" font-size="14" font-weight="600" font-family="'Geist', sans-serif">Retrieval</text>
+<text x="940" y="462" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" text-anchor="end">Chroma · SQLite + nomic-embed · literal lookup · per-engagement index</text>
+<rect x="152" y="496" width="808" height="60" rx="4" fill="#ffffff" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+<text x="172" y="530" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" letter-spacing="0.14em">01</text>
+<text x="240" y="531" fill="#2d3142" font-size="14" font-weight="600" font-family="'Geist', sans-serif">Inference</text>
+<text x="940" y="530" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" text-anchor="end">Ollama — qwen3 14b / 8b · qwen2.5 3b / 1.5b · nomic-embed, Apache-2.0</text>
+<rect x="152" y="564" width="808" height="60" rx="4" fill="#ffffff" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+<text x="172" y="598" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" letter-spacing="0.14em">00</text>
+<text x="240" y="599" fill="#2d3142" font-size="14" font-weight="600" font-family="'Geist', sans-serif">Machines</text>
+<text x="940" y="598" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" text-anchor="end">Mac mini, sovereign · Windows laptop, tenant · nothing shared but git</text>
+<text x="152" y="700" fill="#4f5d75" font-size="11.5" font-family="'Geist', sans-serif" text-anchor="start">Layers 00–02 are deliberately boring and interchangeable. Layer 05 is the one that is not bought in, and the one every agent inherits.</text>
+</svg>
+</div></body></html>

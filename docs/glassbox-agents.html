@@ -1,116 +1,103 @@
 <p class="eyebrow">Architecture note · 04</p>
 <h1>Glassbox agents</h1>
-<p class="lede">The architecture proposal, the reference implementation that proves it runs,
-and the build I actually use to ship agents today.</p>
+<p class="lede">The platform blueprint, the reference implementation that proves it runs, and the
+stack I actually build and ship on today.</p>
 
-<p>The three tools in the other notes are each one service line's answer. This one is the
-general shape underneath them, and it started as a written blueprint before any of them
-existed: a <strong>two-lane agentic platform</strong> — a sovereign local lane for confidential
-client work, a cloud lane for everything else, sharing one data layer, one orchestration
-standard and one governance plane.</p>
+<p>The three tools in the other notes are each one service line's answer. This is the general
+shape underneath them: a <strong>two-lane platform</strong> — a sovereign local lane for
+confidential client work, a cloud lane for everything else, sharing one data layer, one
+orchestration standard and one governance plane.</p>
 
 <p>The argument for that shape is not technical. Under the EU AI Act, NIS2 and DORA, the
-defensible differentiator for a professional-services firm is not agent capability; it is being
-able to show a regulator, a client and your own quality function exactly what an agent saw,
-decided and did. Governance is the product, not the overhead.</p>
-
-<p><a href="https://github.com/Starfish124/glassbox-agents">glassbox-agents</a> is that blueprint
-as working, tested Python — zero third-party dependencies in the core, Apache-2.0 — so the
-claims can be run rather than read.</p>
+defensible differentiator is not agent capability; it is being able to show a regulator, a client
+and your own quality function exactly what an agent saw, decided and did. Governance is the
+product, not the overhead. <a href="https://github.com/Starfish124/glassbox-agents">glassbox-agents</a>
+is that blueprint as working, tested Python — zero third-party dependencies in the core.</p>
 
 <figure>{{glassbox-layers}}
-<figcaption>Fig. 1 — the seven layers. Each is importable on its own; the web console is a
-window onto the same objects, not a second implementation.</figcaption></figure>
-
-<h2>The one control that is structural</h2>
-
-<p>Most "the data stays in the EU" claims are policy documents. This one is a type error. A
-task carries a sensitivity label; a confidential task pinned to the cloud lane raises a
-<span class="m">LaneViolation</span> rather than falling back. You can demonstrate it in the
-console in ten seconds by pinning the lane on a confidential engagement and pressing run.</p>
+<figcaption>Fig. 1 — each layer importable on its own; the web console is a window onto the same
+objects, not a second implementation.</figcaption></figure>
 
 <figure>{{glassbox-lanes}}
 <figcaption>Fig. 2 — the router raises; it does not downgrade.</figcaption></figure>
 
-<p>The rest of the governance plane works the same way. Every step appends to a SHA-256 hash
-chain, so editing, deleting or reordering a past record makes <span class="m">verify()</span>
-fail — and the exported JSONL can be verified independently later. High-risk actions stop and
-wait for a human. Agents act under a registered identity with a scoped capability set and
-instant revocation: revoke one and the next run is denied before the model is called. A
-prompt-injected agent still cannot call a tool outside its capability set.</p>
+<p>Most "the data stays in the EU" claims are policy documents. This one is a type error. Every
+step also appends to a SHA-256 hash chain, so editing, deleting or reordering a past record makes
+<span class="m">verify()</span> fail. Agents act under a registered identity with a scoped
+capability set and instant revocation — revoke one and the next run is denied before the model is
+called, and a prompt-injected agent still cannot reach a tool outside its set.</p>
 
 <h2>Where I stand on guardrails</h2>
 
-<p>I do not treat prompt engineering as a guardrail. A prompt is the right place to describe
-the behaviour I want and it is the layer a model can be argued out of — by a user, by a
-document it retrieved, or by its own drift. It cannot enforce a permission, prevent a tool
-call, prove what happened afterwards, or refuse on my behalf.</p>
+<p>Prompt engineering is not a guardrail. A prompt is the right place to describe the behaviour I
+want, and it is the layer a model can be argued out of — by a user, by a document it retrieved,
+or by its own drift. It cannot enforce a permission, prevent a tool call, prove what happened, or
+refuse on my behalf.</p>
 
 <figure>{{guardrails}}
-<figcaption>Fig. 3 — the layers that actually hold, and the one that does not.</figcaption></figure>
+<figcaption>Fig. 3 — the layers that hold, and the one that does not.</figcaption></figure>
 
-<p>Every interlock in the other three notes is an instance of this: the destructive-command
-regex that overrides a standing grant, the empty retrieval that skips the second model call,
-the citation outside the supplied range that is discarded, the past client name that refuses
-approval rather than warning about it. None of them are instructions to the model. Each one is
-a few lines of code written after watching a model do the thing it prevents.</p>
+<p class="aside">The test: if the model ignored every word of its system prompt, what would still
+stop it? Whatever survives that question is the guardrail. The rest is a preference.</p>
 
-<p class="aside">The test I apply: if the model ignored every word of its system prompt, what
-would still stop it? Whatever survives that question is the guardrail. The rest is a
-preference.</p>
+<p>Every interlock in the other three notes is an instance of it — the destructive-command regex
+that overrides a standing grant, the empty retrieval that skips the second model call, the
+citation outside the supplied range that is discarded, the past client name that refuses approval
+rather than warning. None are instructions to the model.</p>
 
-<h2>How I actually build and ship an agent</h2>
+<h2>The stack I run on</h2>
 
-<p>The delivery side is deliberately boring, and it is shaped by one real constraint: the Mac I
-author on has no tenant access, and the laptop with tenant access is not where I want an agent
-writing code. So authoring and deployment are physically separated, and GitHub is the only
-thing that crosses.</p>
+<figure>{{current-stack}}
+<figcaption>Fig. 4 — everything currently in play, by layer.</figcaption></figure>
+
+<p>Layers 00–02 are deliberately unremarkable and interchangeable — open-weight models on Ollama,
+plain vector stores, no vendor I could not replace in a week. Layer 05 is the one that is not
+bought in, and the one every new agent inherits for free.</p>
+
+<h2>How an agent reaches a tenant</h2>
+
+<p>Deliberately boring, and shaped by one constraint: the machine I author on has no tenant
+access, and the machine with tenant access is not where I want an agent writing code.</p>
 
 <figure class="tall">{{delivery-stack}}
-<figcaption>Fig. 4 — prompt to tenant. Two machines, one shared surface.</figcaption></figure>
+<figcaption>Fig. 5 — two machines, one shared surface.</figcaption></figure>
 
 <table>
 <tr><th>Stage</th><th>What it is</th></tr>
-<tr><td>Author</td><td>Claude Code sessions, one per system, running in parallel Vibe Kanban
-worktrees so several agents can work without sharing a working tree.</td></tr>
-<tr><td>The repo</td><td>Code, tests, ADRs, and a <span class="m">layers.json</span> that
-declares the system's boundary — what it reads, with which permission, where the data sits,
-what leaves. A new system declares its boundary before it has code.</td></tr>
+<tr><td>Author</td><td>Claude Code sessions, one per system, in parallel Vibe Kanban worktrees so
+several agents work without sharing a working tree.</td></tr>
+<tr><td>The repo</td><td>Code, tests, ADRs, and a <span class="m">layers.json</span> declaring the
+system's boundary — what it reads, with which permission, where the data sits, what leaves. A new
+system declares its boundary before it has code.</td></tr>
 <tr><td>Measure</td><td>A control room reads that file <em>and the code</em>: which layers are
-built and green, which boundaries the code actually respects, every test with its last line,
-the hash chains. xyOps schedules those checks, stores the results and alerts.</td></tr>
-<tr><td>Ship</td><td>GitHub carries the YAML to the Windows laptop, where
-<span class="m">pac</span> authenticates against the tenant and pushes into Copilot Studio and
-Dataverse.</td></tr>
+green, which boundaries the code actually respects, every test with its last line, the hash
+chains. xyOps schedules, stores and alerts.</td></tr>
+<tr><td>Ship</td><td>GitHub carries the YAML to the Windows laptop, where <span class="m">pac</span>
+authenticates and pushes into Copilot Studio and Dataverse.</td></tr>
 </table>
 
-<p>The part I would defend hardest is that the control room measures the repository rather than
-a status slide. A boundary claim that no code satisfies shows up red, and so does a test whose
-last line is a failure. It is the same principle as the interlocks, applied one level up.</p>
+<p>The part I would defend hardest: the control room measures the repository, not a status slide.
+A boundary claim no code satisfies shows up red, and so does a test whose last line is a failure.
+Same principle as the interlocks, one level up.</p>
 
 <h3>The worked example</h3>
-<p>The current agent on that pipeline is a forensics agent for GT: it answers questions about
-published Dutch fraud rulings from a curated corpus of 561 judgments, extracting court, date,
-ECLI, alleged offences and forensic methods with citations — and, deliberately, answers nothing
-else. It is locked down in YAML: <span class="m">useModelKnowledge: false</span>,
-<span class="m">webBrowsing: false</span>. Anything not in the corpus gets
-<em>"Dat staat niet in de verzamelde uitspraken."</em> For an audience of forensic accountants,
-an agent that refuses is worth more than one that improvises.</p>
+<p>A forensics agent that answers questions about published Dutch fraud rulings from a curated
+corpus of 561 judgments — court, date, ECLI, alleged offences, forensic methods, with citations —
+and deliberately nothing else. Locked in YAML: <span class="m">useModelKnowledge: false</span>,
+<span class="m">webBrowsing: false</span>. Anything outside the corpus gets <em>"Dat staat niet in
+de verzamelde uitspraken."</em> For forensic accountants, an agent that refuses is worth more than
+one that improvises. The same corpus also runs as an MCP server outside Microsoft entirely — one
+corpus, two agents, one of which needs a tenant and a licence and one of which needs neither.</p>
 
-<p>The same corpus also runs as an MCP server with three tools, outside Microsoft entirely — no
-tenant, no licence, no SharePoint — so the identical agent works in Claude Code, Claude Desktop
-or Cursor. That side-by-side is the point: one corpus, two agents, one of which needs a tenant
-and a licence and one of which needs neither.</p>
-
-<h2>What I would want a reviewer to push on</h2>
+<h2>Push on this</h2>
 <ul>
 <li>The layers behind the production seams — vector store, embedder, chat model, approval gate —
 are in-memory reference implementations. The seams are real; what is behind them is not
 production.</li>
 <li>Console engagements do not survive a restart. The audit trail does. That asymmetry is
 deliberate and I am not certain it is right.</li>
-<li>The guardrails layer ships pattern-based injection and PII detection. It is a floor, and I
-have no adversarial evaluation of where it stops working.</li>
-<li>The measurement plane checks that a boundary is respected by the code in the repo. It cannot
-check the boundary was the right one.</li>
+<li>Guardrails ship pattern-based injection and PII detection. A floor, with no adversarial
+evaluation of where it stops working.</li>
+<li>The measurement plane checks a boundary is respected by the code. It cannot check the boundary
+was the right one.</li>
 </ul>

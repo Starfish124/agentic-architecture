@@ -1,104 +1,90 @@
 <p class="eyebrow">Architecture note · 03</p>
 <h1>GT Proposal</h1>
 <p class="lede">Drafting proposals from the ones we already wrote, and pricing them from what
-comparable engagements actually cost. Locally, with no proposal, client name or fee leaving
-the machine.</p>
+comparable engagements actually cost. Locally, with no proposal, client name or fee leaving the
+machine.</p>
 
-<p>A proposal takes 40 to 100 hours to produce and most of them are lost, which makes the
-firm's pile of past proposals simultaneously its largest body of reusable writing and its
-largest pile of sunk cost. GT Proposal indexes that pile and does three things with it: drafts
-a new proposal section by section from the language of bids that were won, prices it from the
-recorded actuals of comparable engagements, and refuses to let another client's name out of
-the building.</p>
+<p>A proposal takes 40–100 hours and most are lost, which makes the firm's pile of past proposals
+both its largest body of reusable writing and its largest pile of sunk cost.</p>
 
 <figure>{{gt-proposal-architecture}}
 <figcaption>Fig. 1 — the model proposes; the code decides.</figcaption></figure>
 
-<h2>The estimate is the defensible part</h2>
+<h2>The estimate</h2>
+<table>
+<tr><th>Step</th><th>Who</th></tr>
+<tr><td>Which past engagements are comparable</td><td><strong>the model</strong> — selection only</td></tr>
+<tr><td>Why each is comparable</td><td>the model, one clause each</td></tr>
+<tr><td>Median and range of hours and fee</td><td>code, from recorded actuals</td></tr>
+<tr><td>Implied hourly rate</td><td>code</td></tr>
+<tr><td>Win rate among the comparables</td><td>code</td></tr>
+<tr><td>What the lost bids were priced at</td><td>code</td></tr>
+</table>
 
-<p>The model does exactly one job in the pricing path: it says which past engagements are
-comparable, and gives one clause of reasoning each. Every hour, euro and percentage — median,
-range, implied rate, win rate among the comparables, what the lost bids were priced at — is
-computed by code from the catalogue's recorded actuals.</p>
+<p>The model is <strong>never shown a fee or an hour count</strong> when it selects — only file,
+client, service line and scope tags — so it judges similarity of work rather than anchoring on
+someone else's price. It replies with indices into a numbered list, and anything out of range is
+discarded silently, because an out-of-range index is the model inventing an engagement.</p>
 
-<p>Two details make that hold. The model is <strong>never shown a fee or an hour count</strong>
-when it selects, only file, client, service line and scope tags, so it judges similarity of
-work rather than anchoring on someone else's price. And it replies with indices into a
-numbered list: anything out of range is discarded silently, because an out-of-range index is
-the model inventing an engagement, and an invented comparable would feed a real number into a
-real price.</p>
+<p class="aside">A model asked to "estimate the fee" returns a plausible number with no
+provenance. This returns one you can trace to named engagements, recompute by hand, and defend
+in a pricing discussion.</p>
 
-<p>A model asked to "estimate the fee" returns a plausible number with no provenance. This
-returns a number you can trace to named engagements, recompute by hand, and defend in a
-pricing discussion.</p>
+<h3>Measured on qwen3:8b</h3>
+<p>Selection took ~10 s and returned the two engagements a person would have picked. On a re-run
+it also selected a third — reasonably, the only utility in the corpus — which moved the median.
+<strong>The comparable set is not stable across runs.</strong> So the named comparables are the
+output and the median is a summary of them, not the other way round.</p>
 
-<h3>Measured, on <span class="m">qwen3:8b</span></h3>
-<p>On a first-time internal audit brief for a regional water authority, selection took about
-ten seconds and returned the two engagements a person would have picked. On a re-run it also
-selected a third — reasonably, it is the only utility in the corpus — which moved the median.
-<strong>The comparable set is not stable across runs.</strong> So the named comparables are
-the output and the median is a summary of them, not the other way round.</p>
-
-<h2>Retrieval is restricted, and that is what makes a section right</h2>
-
-<p>This one was learned the hard way. A probe like <em>"deliverables, milestones, indicative
-timeline"</em> matches every proposal's deliverables table about equally well, so the first
-live run drafted a water authority's internal audit timetable as a payments company's ISAE
-3402 readiness plan — table intact, week numbers intact, "Readiness confirmation memorandum,
-Week 15" and all. Drafting now retrieves only from the comparables already selected for the
-estimate, and widens to the whole corpus only when that filter returns nothing.</p>
+<h2>Retrieval is restricted to the comparables</h2>
+<p>A probe like <em>"deliverables, milestones, indicative timeline"</em> matches every proposal's
+deliverables table about equally well. The first live run drafted a water authority's internal
+audit timetable as a payments company's ISAE 3402 readiness plan — table intact, week numbers
+intact, "Readiness confirmation memorandum, Week 15" and all. Drafting now retrieves only from
+the comparables already selected for the estimate.</p>
 
 <figure class="tall">{{gt-proposal-interlocks}}
 <figcaption>Fig. 2 — three code checks, none of which trust the model to have followed
 instructions.</figcaption></figure>
 
-<h2>The interlocks, and why each one exists</h2>
-
 <table>
 <tr><th>Check</th><th>The failure it was written for</th></tr>
-<tr><td>Confidentiality</td><td>Full name, name without legal form, and the one distinctive
-word people actually say. The third form is the one that matters: the check initially missed
-<em>"Caldbeck manages approximately 6,400 units across two regions"</em>, lifted whole from
-another engagement, because the catalogue's name is "Caldbeck Housing Association".</td></tr>
-<tr><td>Attribution</td><td>A section drafted from six extracts that cites none of them.
-Fluent, original-reading, entirely-assembled prose is the failure mode of a reuse tool, and
-that is exactly what an uncited section looks like.</td></tr>
-<tr><td>Foreign specifics</td><td>The name check only ever caught a borrowed <em>name</em>; a
-borrowed figure with the name stripped out passed it. Every number and name-shaped phrase must
-appear in the brief or in an extract that section actually cites.</td></tr>
+<tr><td>Confidentiality</td><td>Full name, name without legal form, and the one distinctive word
+people actually say. The third form is the one that matters: the check initially missed
+<em>"Caldbeck manages approximately 6,400 units across two regions"</em>, lifted whole, because
+the catalogue's name is "Caldbeck Housing Association".</td></tr>
+<tr><td>Attribution</td><td>A section drafted from six extracts that cites none of them. Fluent,
+original-reading, entirely-assembled prose is the failure mode of a reuse tool.</td></tr>
+<tr><td>Foreign specifics</td><td>The name check only caught a borrowed <em>name</em>; a borrowed
+figure with the name stripped out passed it.</td></tr>
 </table>
 
-<p>A draft with an outstanding name <strong>cannot be approved</strong> — the approval call
-refuses rather than warning. Citation tags are stripped before the confidentiality check runs,
-because a tag contains the past client's name and, left in, every correctly cited sentence
-flagged itself.</p>
+<p>A draft with an outstanding name <strong>cannot be approved</strong> — the call refuses rather
+than warning. What it still cannot catch is a paraphrased specific: "around six and a half
+thousand units" for "6,400 units" passes, because matching is exact. That is deliberate — a
+similarity threshold is a dial for how often a confidentiality check fails quietly.</p>
 
-<p>What it still cannot catch is a <em>paraphrased</em> specific: "around six and a half
-thousand units" for "6,400 units" passes, because matching is exact. That is the same
-deliberate choice the name check makes — a similarity threshold is a dial for how often a
-confidentiality check fails quietly. Read every number in a draft against the brief. That is
-the reviewer's job and the tool does not remove it.</p>
+<h2>Qualification, before any writing</h2>
+<p>Entirely code, computed from recorded outcomes. It scores the <em>firm's</em> position, not
+the client.</p>
+<table>
+<tr><th>Signal</th><th>Computed from</th></tr>
+<tr><td>Track record in the service line</td><td>won / lost among all catalogued bids in that line</td></tr>
+<tr><td>Depth of comparable work</td><td>how many selected comparables were won</td></tr>
+<tr><td>Recency</td><td>months since the most recent comparable engagement</td></tr>
+<tr><td>Price pressure</td><td>comparables whose loss reason names price</td></tr>
+<tr><td>Capability coverage</td><td>scope the brief mentions that no comparable covers</td></tr>
+</table>
+<p>Two weak signals is a no-go; one is go-with-conditions. Every signal names the engagements it
+was computed from, because a partner has to be able to argue with it. Capacity, relationship,
+independence and strategic value are deliberately <em>not</em> scored and print as the human's —
+the tool cannot see a calendar or a conflicts register.</p>
 
-<h2>Before the writing: qualification</h2>
-
-<p>The most valuable thing this does is not write proposals faster. It is to stop ten of them
-going into a bid the firm was never going to win. Qualification is <strong>entirely code</strong>,
-computed from recorded outcomes, and it scores the firm's position rather than the client:
-track record in the service line, depth of comparable work, recency, price pressure, and
-capability coverage. Two weak signals is a no-go; one is go-with-conditions. Every signal names
-the engagements it was computed from, because a partner has to be able to argue with it.</p>
-
-<p>Four things are deliberately not scored and are printed as the human's: capacity,
-relationship, independence and conflicts, and strategic value. The tool cannot see a calendar
-or a conflicts register, and a score that silently omitted them would read as though it had
-covered them.</p>
-
-<h2>What I would want a reviewer to push on</h2>
+<h2>Push on this</h2>
 <ul>
-<li>Hours, fee and outcome are entered by hand, once, per proposal. The whole estimate rests
-on that data entry being honest and on recording actuals rather than quotes.</li>
-<li>Citation coverage swings between one and four of five sections run to run. The attribution
-check exists because of that, but the underlying instability is unaddressed.</li>
-<li>Exact matching in the confidentiality check is a deliberate, arguable choice. I would like
-to be talked into or out of it with something better than "add a threshold".</li>
+<li>Hours, fee and outcome are entered by hand, once, per proposal. The whole estimate rests on
+that being honest and on recording actuals rather than quotes.</li>
+<li>Citation coverage swings between one and four of five sections run to run.</li>
+<li>Exact matching in the confidentiality check is deliberate and arguable. I would like to be
+talked into or out of it with something better than "add a threshold".</li>
 </ul>

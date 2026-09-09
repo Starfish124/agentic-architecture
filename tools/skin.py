@@ -129,9 +129,9 @@ def caption(x, y, text, anchor="start", colour=None, size=9):
 
 
 def note(x, y, text, anchor="start"):
-    """Editorial aside — italic serif, the only non-mono annotation."""
-    return (f'<text x="{x}" y="{y}" fill="{MUTED}" font-size="13" font-style="italic" '
-            f'font-family="\'Instrument Serif\', serif" text-anchor="{anchor}">{esc(text)}</text>')
+    """Caption under a diagram — sans, muted, the only non-mono annotation."""
+    return (f'<text x="{x}" y="{y}" fill="{MUTED}" font-size="11.5" '
+            f'font-family="{SANS}" text-anchor="{anchor}">{esc(text)}</text>')
 
 
 DEFS = f'''<defs>
@@ -160,7 +160,7 @@ PAGE = '''<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{title}</title>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
 :root{{--paper:#f5f5f5;--ink:#2d3142;--muted:#4f5d75}}
@@ -169,8 +169,8 @@ min-height:100vh;display:flex;align-items:center;justify-content:center;padding:
 .frame{{max-width:1200px;width:100%}}
 .eyebrow{{font-family:'Geist Mono',monospace;font-size:.66rem;font-weight:500;
 letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem}}
-h1{{font-family:'Instrument Serif',serif;font-size:clamp(1.5rem,2.4vw + .75rem,2rem);
-font-weight:400;letter-spacing:-.02em;line-height:1.15;margin-bottom:1.5rem}}
+h1{{font-family:'Geist',sans-serif;font-size:1.5rem;font-weight:600;
+letter-spacing:-.01em;line-height:1.2;margin-bottom:1.5rem}}
 svg{{width:100%;display:block}}
 </style></head>
 <body><div class="frame"><p class="eyebrow">{eyebrow}</p><h1>{heading}</h1>

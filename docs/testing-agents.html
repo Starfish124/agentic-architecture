@@ -1,0 +1,169 @@
+<p class="eyebrow">Note for the Agentic AI team</p>
+<h1>Testing complex agents</h1>
+<p class="lede">Where I would start on CI/CD, the golden set, the eval harness, and the one
+orchestration decision I think we should make deliberately rather than drift into.</p>
+
+<p>Three positions: the golden set is the first artefact and it is not ours to own; what we make
+repeatable is the harness rather than the agent; and one orchestration standard per lane. The
+failure modes named below are ones I have watched happen on tools I built.</p>
+
+<h2>Two kinds of test, kept apart</h2>
+<table>
+<tr><th>What</th><th>How it is tested</th><th>Cost</th></tr>
+<tr><td>The interlocks around the model</td><td>Ordinary unit tests. Permission check,
+citation-range check, confidentiality check, approval gate — code with a deterministic answer,
+testable with no model in the room.</td><td>cheap</td></tr>
+<tr><td>Every point the model judges</td><td>A case in the golden set, run repeatedly, gated on a
+pass rate.</td><td>not</td></tr>
+</table>
+<p>Conflating them is how a team ends up with a green pipeline and an agent nobody trusts. The
+first is where most of the actual guarantees live. The second is where the risk lives.</p>
+
+<h2>Where each level runs</h2>
+
+<figure>{{test-levels}}
+<figcaption>Fig. 1 — the cheap levels run constantly; the expensive ones prove integration, not
+behaviour.</figcaption></figure>
+
+<p>The level worth insisting on is <strong>00</strong>: most tests should need no tenant, no
+licence and no network, because that is the only version that can run on every pull request. If
+tests require a Dataverse environment to execute, they will run weekly and we will hear about
+regressions from users.</p>
+
+<h2>The golden set</h2>
+<table>
+<tr><th>Set</th><th>Answers</th><th>Why separate</th></tr>
+<tr><td>Retrieval quality</td><td>Did we put the right documents in front of the model?</td>
+<td>An agent can be right for the wrong reason. We need to know which half broke.</td></tr>
+<tr><td>Task correctness</td><td>Given the right evidence, is the judgement right?</td>
+<td>The obvious one, and useless on its own.</td></tr>
+<tr><td>Refusal and negatives</td><td>What must it decline, and what must it say it cannot find?</td>
+<td>The set teams skip, and where the exposure sits.</td></tr>
+</table>
+
+<p>Two live examples of the third mattering: a business-continuity control with no evidence in the
+pack at all, where a larger model reliably says <em>insufficient evidence</em> and a smaller one
+accepts an adjacent document; and a proposal brief with no comparable past engagement, where the
+correct output is a no-go rather than a confident price.</p>
+
+<p>Production failures go back into the set — that is the difference between a gate and a
+snapshot. And the <strong>subject-matter people own the cases</strong>. If engineering owns them
+the set rots; we are not the people who can say what the right answer is on a control conclusion.
+Engineering owns the harness. Worth settling in the team's first month rather than at the first
+incident.</p>
+
+<h2>The harness</h2>
+
+<figure>{{eval-harness}}
+<figcaption>Fig. 2 — one golden set as data in the repo, three runners, one judge.</figcaption></figure>
+
+<h3>promptfoo and deepeval, mapped</h3>
+<p>They are complementary, not competing. Both open source, both able to run against a local
+model, so level 00 works with no tenant.</p>
+<table class="wide">
+<tr><th>What we need to know</th><th>Tool</th><th>How</th></tr>
+<tr><td>The interlocks behave</td><td>pytest</td><td>plain asserts, no model involved</td></tr>
+<tr><td>Retrieval quality, separate from the answer</td><td>deepeval</td><td>contextual precision,
+recall, relevancy</td></tr>
+<tr><td>The answer is supported by what was retrieved</td><td>deepeval</td><td>faithfulness,
+hallucination</td></tr>
+<tr><td>The right tool was called, in the right order</td><td>deepeval</td><td>tool correctness,
+task completion</td></tr>
+<tr><td>Domain judgement — "is this a defensible conclusion"</td><td>deepeval</td><td>G-Eval
+against a written rubric</td></tr>
+<tr><td>The gate: cases × repeats × pass rate, one exit code</td><td>promptfoo</td><td>YAML suite,
+assertions, provider matrix, CI exit code</td></tr>
+<tr><td>Refusal cases</td><td>promptfoo</td><td>not-contains and rubric assertions</td></tr>
+<tr><td>Cost and latency budgets</td><td>promptfoo</td><td>per-case thresholds</td></tr>
+<tr><td>Injection and jailbreak resistance</td><td>promptfoo</td><td>red-team suites</td></tr>
+<tr><td>The audit chain verified as part of the pass</td><td>ours</td><td>a custom assertion in
+both</td></tr>
+</table>
+
+<p><strong>Three things to decide before adopting either.</strong></p>
+<ul>
+<li><strong>The judge model is itself unmeasured.</strong> Every graded metric needs one, and on
+the sovereign lane it has to be a local model. Calibrate it against human labels on a subset, or
+we have replaced one unmeasured model with two.</li>
+<li><strong>Keep the golden set as data in the repo</strong> — YAML or JSON we own — not as
+configuration inside either tool. That is what lets the same cases feed all three runners and
+survive a tool change.</li>
+<li><strong>Neither replaces the interlock tests or the chain verification.</strong> Those stay
+plain pytest.</li>
+</ul>
+
+<h2>Repeatability: the harness, not the agent</h2>
+<p>There is no "deterministic agent". What we make deterministic is the harness around it.</p>
+<table>
+<tr><th>Control</th><th>Detail</th></tr>
+<tr><td>Pinned model</td><td>One tag per run, expected digest in config, verified at startup. A
+mismatch should refuse, not warn.</td></tr>
+<tr><td>Temperature zero</td><td>And hidden reasoning disabled where the model emits it — cost
+without benefit for structured judgement.</td></tr>
+<tr><td>Seeded selection</td><td>Anything that samples derives its seed from the inputs, so a run
+reproduces and a reviewer can verify the draw.</td></tr>
+<tr><td>Recorded fixtures</td><td>Tool and connector responses replayed, not called live.</td></tr>
+<tr><td>Frozen corpus</td><td>Versioned with the test suite.</td></tr>
+</table>
+<p>All five are already in the tools I have built — it is what made them demonstrable.</p>
+
+<h2>Flakiness is data, not noise</h2>
+<p>A case runs N times and gates on a <strong>pass rate</strong>, not pass or fail. Two
+measurements make the argument better than theory: a comparable-selection step returned a
+different set of past engagements between two runs of the same brief, moving the median; and on a
+twelve-item sample, an attribute judgement flagged four of eight clean items as exceptions on one
+run and none on the next.</p>
+
+<p>A single-run gate on that goes red or green at random, and the team learns to re-run until
+green — worse than no gate, because it teaches people to ignore it. A rate also catches what a
+binary gate cannot see at all: a case dropping from ten out of ten to seven out of ten has
+regressed while still "passing".</p>
+
+<p class="aside">Record the rate, not the verdict. The trend across releases is the signal; any
+single run is close to meaningless.</p>
+
+<h2>Tooling, described honestly</h2>
+<table>
+<tr><th>Tool</th><th>What it actually does</th></tr>
+<tr><td>Vibe Kanban<br><span class="m">github.com/BloopAI/vibe-kanban</span></td><td>Gives each
+agent its own git worktree so several work in parallel without colliding. A <em>development</em>
+tool.</td></tr>
+<tr><td>xyOps<br><span class="m">github.com/pixlcore/xyops</span></td><td>Schedules the checks,
+stores results, alerts. The CI/CD and monitoring plane.</td></tr>
+<tr><td>promptfoo · deepeval</td><td>The runners above. They evaluate; they do not schedule or
+isolate.</td></tr>
+<tr><td>The golden set</td><td>Ours. No tool supplies it.</td></tr>
+</table>
+<p>Neither Vibe Kanban nor xyOps is enterprise-supported. If we standardise on them that should be
+a deliberate decision with a short ADR behind it, not something we drift into because they were
+what one person already had running.</p>
+
+<h2>Orchestration: one standard per lane</h2>
+<p>Not every agent needs a graph runtime such as LangGraph, and the criterion is not how often it
+is deployed. It is whether the workflow needs explicit, inspectable, <strong>resumable
+state</strong>.</p>
+<table>
+<tr><th>Reach for it when</th><th>Do not when</th></tr>
+<tr><td>The flow branches on intermediate results</td><td>Single-turn retrieval and answer</td></tr>
+<tr><td>A human approval pauses a run for hours or days and it must resume</td><td>A fixed
+pipeline with no branching — a plain function is smaller and easier to test</td></tr>
+<tr><td>Partial failure needs to resume mid-flow, not from the top</td><td>Anything Copilot Studio
+topics and Power Automate already express</td></tr>
+<tr><td>Someone needs to see the state at each step</td><td>The state fits in one call and nobody
+will ask about it</td></tr>
+</table>
+<p>In a Microsoft estate this is a <strong>stack decision, not a library choice</strong> — a second
+deployment path, a second audit surface, a second set of skills to hire and review for. Decided
+once, at team level, not per agent by whoever is building it. What I would propose: the Microsoft
+path for the tenant-integrated lane, a graph runtime considered only for the sovereign lane where
+we control the whole stack. I already have four orchestration patterns running in Python with no
+third-party dependencies, so we can test that question against something real.</p>
+
+<h2>What I would do first</h2>
+<ul>
+<li>Pick one agent we already understand and build its golden set end to end, refusal cases
+included. It will be more work than anyone expects, and that is the useful part.</li>
+<li>Get level 00 running with no tenant, on every pull request.</li>
+<li>Agree who owns the cases.</li>
+<li>Write the orchestration ADR before the second agent, not after the fifth.</li>
+</ul>

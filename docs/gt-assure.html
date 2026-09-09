@@ -3,106 +3,100 @@
 <p class="lede">AI-assisted control testing and PBC management for an assurance practice.
 Everything runs on the consultant's machine; no client evidence leaves it.</p>
 
-<p>Control testing is the most time-consuming activity on an engagement: requesting
-documentation, chasing what has not arrived, reading large volumes of evidence, and judging
-whether it satisfies a control description. GT Assure compresses the mechanical part —
-retrieval, first-pass assessment, citation, PBC administration — and leaves the judgement
-with a named human who approves every conclusion before it can be exported.</p>
-
-<p>Five constraints came before any code, and the architecture is built around them rather
-than aspiring to them: fully local inference, framework-agnostic control definitions, a human
-in the loop, an append-only audit log, a pinned model per run, and synthetic data only so the
-demo never needs a real client.</p>
+<p>The system compresses the mechanical part of control testing — retrieval, first-pass
+assessment, citation, PBC administration — and leaves the judgement with a named human who
+approves every conclusion before it can be exported.</p>
 
 <figure>{{gt-assure-architecture}}
 <figcaption>Fig. 1 — one folder per client; one network call in the system.</figcaption></figure>
 
-<h2>What the model decides, and what code decides</h2>
-
-<p>The division of labour is the thing I would show a partner. Per control, the model does two
-jobs: turn a control description into acceptance criteria and retrieval probes, then judge
-the retrieved evidence against those criteria while citing the numbered excerpts it used.
-Everything else is code.</p>
-
-<p>Two of those steps exist because of a specific failure. Retrieval returns whole documents
-in page order, not the closest paragraph, because a control is evidenced by a document: the
-incident plan's severity matrix and its named crisis roles sit on different pages, and judging
-the control on whichever page embedded closest manufactures false gaps. And if retrieval
-returns nothing, the second model call never happens at all — asking a model to assess a
-control with no evidence in front of it is an invitation to answer from general knowledge
-about what such a control usually looks like.</p>
+<h2>Constraints, not aspirations</h2>
+<table>
+<tr><th>Guarantee</th><th>How it holds</th></tr>
+<tr><td>Fully local</td><td>All inference via Ollama on the machine. No external call anywhere in
+the data path. Works offline after setup.</td></tr>
+<tr><td>Framework-agnostic</td><td>NIS2, DORA, ISO 27001, DigiD, client-specific — loaded as
+configuration files, never hard-coded.</td></tr>
+<tr><td>Human in the loop</td><td>The system drafts, a named consultant approves, nothing exports
+unapproved. It never contacts a client.</td></tr>
+<tr><td>Auditable</td><td>Append-only log of every analysis: model + version, inputs, evidence
+consulted, output hash, reviewer.</td></tr>
+<tr><td>Pinned model</td><td>One generation tag per run. Config records the expected digest;
+startup verifies and warns on mismatch.</td></tr>
+<tr><td>Synthetic data only</td><td>Ships with a full fictional engagement, so the demo never
+needs real client data.</td></tr>
+</table>
 
 <figure class="tall">{{gt-assure-control}}
 <figcaption>Fig. 2 — the per-control pipeline. The empty branch never reaches the model.</figcaption></figure>
 
-<h2>Sample testing, where most of the real effort is</h2>
+<p>Two steps exist because of a specific failure. Retrieval returns <em>whole documents</em> in
+page order rather than the closest paragraph, because the incident plan's severity matrix and its
+named crisis roles sit on different pages — judging the control on whichever page embedded
+closest manufactures false gaps. And if retrieval returns nothing, the second model call never
+happens, because a model with no evidence in front of it will answer from general knowledge
+about what such a control usually looks like.</p>
 
-<p>Assessing an evidence pack is design-level work. Most of the hours on a real engagement go
-into the next step: drawing a sample from the client's population and testing each item
-against named attributes. GT Assure does that too, and again the split is the point.</p>
-
+<h2>Sample testing: who does what</h2>
 <table>
 <tr><th>Step</th><th>Who</th></tr>
-<tr><td>Sample size</td><td>a lookup in the firm's table (<span class="m">methodology/sampling.yaml</span>)</td></tr>
-<tr><td>Which items are drawn</td><td>a seeded draw, reproducible from engagement + control + population hash</td></tr>
+<tr><td>Sample size</td><td>a lookup in the firm's table (<span class="m">sampling.yaml</span>)</td></tr>
+<tr><td>Which items are drawn</td><td>seeded draw, reproducible from engagement + control +
+population hash</td></tr>
 <tr><td>Which attributes exist</td><td>the framework file</td></tr>
-<tr><td>Whether evidence corroborates an item</td><td><strong>the local model</strong> — one call per item</td></tr>
+<tr><td>Evidence corroborates an item</td><td><strong>the local model</strong> — one call per item</td></tr>
 <tr><td>Exceptions, conclusion, workpaper</td><td>code</td></tr>
 </table>
 
-<p>Three interlocks stand between the model and the filed workpaper, and each exists because
-an 8B did the thing it prevents on this demo pack. Only passages that <em>literally</em> name
-the item are shown to the model — on the first live run it concluded all twelve items were
-established, citing September release documentation for a February change. A conclusion of
-<span class="m">vastgesteld</span> without a resolvable citation is downgraded. And
-<span class="m">n.v.t.</span> is refused where the client's own export asserts the attribute,
-because "not applicable" is how real gaps quietly stay out of the exception count.</p>
+<h3>Three interlocks, each written after watching an 8B do the thing it prevents</h3>
+<table>
+<tr><th>Interlock</th><th>The failure</th></tr>
+<tr><td>Only passages that literally name the item reach the model</td><td>On the first live run
+it concluded all twelve items established, citing September release documentation for a February
+change.</td></tr>
+<tr><td>A conclusion without a resolvable citation is downgraded</td><td>Fluent agreement with no
+traceable source reads identically to a real conclusion in a filed workpaper.</td></tr>
+<tr><td><span class="m">n.v.t.</span> refused where the client's export asserts the attribute</td>
+<td>"Not applicable" is how real gaps quietly stay out of the exception count.</td></tr>
+</table>
 
-<p>Evidence is found literally rather than semantically, which was a correction: "which
-passages mention ticket 14721" is a text question, and a ticket number carries almost no
-embedding signal, so the correct document repeatedly fell outside top-k while unrelated ones
-ranked above it.</p>
+<p>Evidence is found <em>literally</em>, not semantically. "Which passages mention ticket 14721"
+is a text question; a ticket number carries almost no embedding signal, so the correct document
+repeatedly fell outside top-k while unrelated ones ranked above it.</p>
 
-<h2>Measured, and I would quote it that way</h2>
+<h2>Measured on qwen3:8b</h2>
+<table>
+<tr><th>Behaviour</th><th>Across two runs</th></tr>
+<tr><td>Changes absent from the release documentation</td><td>Stable — <em>niet vastgesteld</em>
+on every attribute, both runs.</td></tr>
+<tr><td>CAB approval, test environment</td><td>Stable.</td></tr>
+<tr><td>Acceptance attribute on clean items</td><td><strong>Not stable</strong> — four of eight
+flagged as exceptions in one run that should have passed.</td></tr>
+<tr><td>A control with no evidence at all</td><td>The 14B reliably says <em>insufficient
+evidence</em>; the 8B is more likely to accept an adjacent document.</td></tr>
+</table>
 
-<p>On <span class="m">qwen3:8b</span>, across two runs of the twelve-item demo sample: the
-changes absent from the release documentation concluded <em>niet vastgesteld</em> on every
-attribute in both runs, and CAB-approval and test-environment attributes were stable. The
-acceptance attribute on cleanly documented items was <strong>not</strong> stable — four of
-eight were flagged as exceptions in one run that should have passed.</p>
+<p>Errors run conservative: the tool over-refers to the reviewer rather than passing items
+silently. That is the right direction for assurance work, and it is not accuracy.</p>
 
-<p>The errors run conservative: the tool over-refers to the reviewer rather than passing items
-silently. That is the right direction for assurance work, and it is not accuracy. The same
-holds at design level: a control with no evidence at all is reliably called
-<em>insufficient evidence</em> by a 14B, while the 8B is more likely to accept an adjacent
-document. The deterministic grounding checks catch the uncited case; they cannot catch a
-wrong-but-cited one, which is exactly what the reviewer is for.</p>
+<p class="aside">Pitch the cited reasoning, not the label. That is the demo instruction and it is
+also the honest description of what an 8B is good for.</p>
 
-<p class="aside">Pitch the cited reasoning, not the label. That is the whole demo instruction
-and it is also the honest description of what an 8B is good for.</p>
+<h2>Walkthroughs</h2>
+<p>A transcript becomes the process description and a flowchart. The transcript is numbered by
+line and <strong>every extracted step must cite the line it came from</strong>; a step citing
+nothing is discarded and counted. Exact rather than fuzzy on purpose — a line number either
+resolves to something somebody said or it does not. Control references are whitelisted against
+the control's own identifiers, steps are renumbered by position because the model's numbering
+drifts, and the flowchart is laid out deterministically so two workpapers for the same process
+can be compared.</p>
 
-<h2>Walkthroughs and the anti-fabrication interlock</h2>
-
-<p>The Proces tab of a workpaper is written from a walkthrough interview. Paste the transcript
-and GT Assure produces the process description and a flowchart. The transcript is numbered by
-line and <strong>every extracted step must cite the line it came from</strong>; a step that
-cites nothing is discarded and counted. That is exact rather than fuzzy on purpose — a line
-number either resolves to something somebody said or it does not. Asking for a verbatim quote
-instead would have been weaker in both directions, because checking a paraphrase needs a
-similarity threshold and an 8B paraphrases constantly.</p>
-
-<p>Control references in the workpaper are whitelisted against the control's own identifiers,
-because an invented reference in that column reads as firm methodology. Steps are renumbered
-by position, because the model's own numbering drifts. The flowchart is laid out
-deterministically, so the same steps always render byte-identical SVG and two workpapers for
-the same process can be compared.</p>
-
-<h2>What I would want a reviewer to push on</h2>
+<h2>Push on this</h2>
 <ul>
-<li>Approval is enforced by writing the export file only at approval time. It is elegant, and
-it means the guarantee lives in a file's existence rather than in a check I can point at.</li>
-<li>The 8B's attribute-level instability is measured but not bounded. I do not know how it
-behaves on a real population an order of magnitude larger.</li>
-<li>The audit chain is append-only JSONL on the same disk as the evidence. Tamper-evident,
-not tamper-proof.</li>
+<li>Approval is enforced by writing the export file only at approval time. Elegant, but the
+guarantee lives in a file's existence rather than in a check I can point at.</li>
+<li>The 8B's attribute-level instability is measured but not bounded. Unknown on a real
+population an order of magnitude larger.</li>
+<li>The audit chain is append-only JSONL on the same disk as the evidence. Tamper-evident, not
+tamper-proof.</li>
 </ul>

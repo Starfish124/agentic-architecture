@@ -1,80 +1,64 @@
 <p class="eyebrow">Architecture note · 01</p>
 <h1>GT-Code</h1>
-<p class="lede">A coding agent that runs entirely on the consultant's own machine, on
-open-weight models, with no cloud LLM, no API key and no telemetry.</p>
+<p class="lede">A coding agent that runs entirely on the consultant's machine, on local
+open-weight models. No cloud LLM, no API key, no telemetry.</p>
 
-<p>I built GT-Code because the useful version of a coding agent inside a firm like ours is
-the one you can point at a client folder. That rules out sending the folder to a cloud
-model. So the constraint came first — everything local — and the architecture is what falls
-out of it.</p>
-
-<p>It behaves the way Claude Code does: it asks clarifying questions, presents a plan before
-it builds, executes with tools, verifies its own work, and asks permission as it goes. The
-difference is where the model lives and what it costs to be wrong.</p>
+<p>The useful version of a coding agent inside a firm like ours is the one you can point at a
+client folder. That rules out sending the folder to a cloud model, so the constraint came first
+and the architecture is what fell out of it.</p>
 
 <figure>{{gt-code-architecture}}
-<figcaption>Fig. 1 — GT-Code, end to end. Ollama on localhost is the only server.</figcaption></figure>
+<figcaption>Fig. 1 — end to end. Ollama on localhost is the only server.</figcaption></figure>
 
-<h2>Three decisions I would defend</h2>
-
-<h3>A ladder of models, not one big model</h3>
-<p>Sending every turn to the biggest model is what makes local agents feel unusable: each
-model swap costs ten to sixty seconds of loading before the first token. So a resident 1.5B
-routes, chats and handles everyday coding; the 8B is the escalation workhorse; the 14B is
-reserved for architecture and planning. Nothing above 14B is supported — on the hardware
-this actually gets deployed to, a 27B is not an interactive agent.</p>
-<p>The first launch probes RAM, CPU and GPU and picks the tier per machine. Every default
-model is Apache-2.0, which means nothing in the line-up needs a licence review before it can
-go on a firm laptop.</p>
-
-<h3>The permission gate is code, not instruction</h3>
-<p>Every action that changes the machine stops and asks, with a Claude-Code-style
-<span class="m">yes once / always allow / no</span>. Standing grants are coarse and readable
-and persist on disk. A destructive-command regex overrides all of it and always prompts, in
-red, even under a standing grant or auto-approve.</p>
-<p>The same idea appears again as hooks: a hook is a shell command GT runs at a fixed
-lifecycle point, and a <span class="m">pre_tool</span> hook that exits 2 blocks the tool call
-outright. Prompts steer the model; hooks guarantee. Hooks are off by default, because anyone
-who can edit the config would otherwise have code execution.</p>
-
-<h3>A confidence gate before a build starts</h3>
-<p>Bias-to-action is right for a clear request and wrong for an ambiguous one. Before a new
-build-shaped task, GT spends one small model call weighing the plausible readings of the
-request and scoring its confidence in the main one. High builds immediately, medium presents
-a plan and waits, low asks exactly one question. It never fires on chat or mid-task turns and
-it fails open, so the gate can only add care, never block work.</p>
+<h2>Three decisions</h2>
+<table>
+<tr><th>Decision</th><th>Why</th></tr>
+<tr><td>A ladder, not one big model<br><span class="m">1.5b → 8b → 14b</span></td>
+<td>Every model swap costs 10–60 s of loading before the first token, which is what makes local
+agents feel unusable. A resident 1.5B routes and handles everyday work; the 8B escalates; the
+14B is reserved for architecture and planning. Nothing above 14B — on this hardware it is not
+an interactive agent.</td></tr>
+<tr><td>Apache-2.0 throughout<br><span class="m">Qwen + nomic-embed</span></td>
+<td>No Meta Llama licence anywhere in the line-up, so nothing needs a licence review before it
+goes on a firm laptop.</td></tr>
+<tr><td>The permission gate is code</td>
+<td>Standing grants persist on disk and are coarse enough to read. A destructive-command regex
+overrides all of them and always prompts, even under auto-approve. Hooks go further: a
+<span class="m">pre_tool</span> hook that exits 2 blocks the call outright.</td></tr>
+<tr><td>A confidence gate before a build</td>
+<td>One small model call weighs the plausible readings of a request and scores its confidence.
+High builds now, medium plans and waits, low asks one question. Never fires mid-task, and fails
+open — the gate can only add care.</td></tr>
+</table>
 
 <figure class="tall">{{gt-code-lifecycle}}
 <figcaption>Fig. 2 — the two places the agent is allowed to stop.</figcaption></figure>
 
-<h2>The rest of the machinery, briefly</h2>
+<h2>The rest of it</h2>
 <table>
 <tr><th>Piece</th><th>What it does</th></tr>
 <tr><td>Agent loop</td><td>Native function calling where the model's template supports it, a
-portable JSON protocol everywhere else. Same loop either way.</td></tr>
-<tr><td>Memory</td><td><span class="m">nomic-embed</span> vectors in plain SQLite, brute-force
-cosine in numpy — nothing that needs a native build on Windows.</td></tr>
-<tr><td>Project memory</td><td>A <span class="m">GT.md</span> per project, loaded every turn,
-so a session starts already knowing the stack and the test command.</td></tr>
-<tr><td>Compaction</td><td>Old turns are distilled into a rolling summary instead of falling
-off, so the goal from the start of a long build survives.</td></tr>
-<tr><td>Sub-agents</td><td>A read-only research agent in its own context; only its report
-comes back. Isolation, not parallelism — it shares the loaded model.</td></tr>
-<tr><td>Skills</td><td>Eight curated playbooks injected on keyword match. Local models can
-execute but arrive with no taste; two sharp pages beat gigabytes of retrieved docs in an 8K
-window.</td></tr>
+portable JSON protocol everywhere else.</td></tr>
+<tr><td>Memory</td><td><span class="m">nomic-embed</span> vectors in SQLite, brute-force cosine
+in numpy — nothing needing a native build on Windows.</td></tr>
+<tr><td>Project memory</td><td>A <span class="m">GT.md</span> per project, loaded every turn.</td></tr>
+<tr><td>Compaction</td><td>Old turns distilled into a rolling summary rather than dropped, so
+the goal from the start of a long build survives.</td></tr>
+<tr><td>Sub-agents</td><td>Read-only research in a separate context; only the report returns.
+Isolation, not parallelism.</td></tr>
+<tr><td>Skills</td><td>Eight curated playbooks injected on keyword match. Two sharp pages beat
+gigabytes of retrieved docs in an 8K window.</td></tr>
 </table>
 
-<h2>What I would want a reviewer to push on</h2>
+<h2>Push on this</h2>
 <ul>
-<li>The confidence gate is one model call scoring itself. I have no measurement of how well
-that score correlates with actually-misread requests — only that it fails open.</li>
-<li>The hybrid tool protocol has two code paths for the same behaviour. That is two places a
-bug can live, and only one of them is exercised on any given model.</li>
-<li>There are 480+ dependency-free logic tests and no test that runs a real model. The
-model-dependent behaviour is the part I cannot regress on.</li>
+<li>The confidence gate is one model call scoring itself. No measurement of how well that score
+correlates with actually-misread requests — only that it fails open.</li>
+<li>The hybrid tool protocol is two code paths for one behaviour. Only one is exercised on any
+given model.</li>
+<li>480+ dependency-free logic tests, and none that run a real model. The model-dependent
+behaviour is the part I cannot regress on.</li>
 </ul>
 
-<p class="aside">The honest summary: the local-first constraint is what makes this
-deployable, and it is also what caps its capability. I would rather argue about that trade
-than hide it.</p>
+<p class="aside">The local-first constraint is what makes this deployable, and it is also what
+caps its capability. I would rather argue about that trade than hide it.</p>

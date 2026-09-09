@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glassbox agents layer stack</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--paper:#f5f5f5;--ink:#2d3142;--muted:#4f5d75}
+body{font-family:'Geist',system-ui,sans-serif;background:var(--paper);color:var(--ink);
+min-height:100vh;display:flex;align-items:center;justify-content:center;padding:3rem 2rem}
+.frame{max-width:1200px;width:100%}
+.eyebrow{font-family:'Geist Mono',monospace;font-size:.66rem;font-weight:500;
+letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem}
+h1{font-family:'Instrument Serif',serif;font-size:clamp(1.5rem,2.4vw + .75rem,2rem);
+font-weight:400;letter-spacing:-.02em;line-height:1.15;margin-bottom:1.5rem}
+svg{width:100%;display:block}
+</style></head>
+<body><div class="frame"><p class="eyebrow">Layer stack · glassbox-agents</p><h1>Seven layers, and the governance plane is the product</h1>
+<svg viewBox="0 0 1000 664" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="glassbox-layers-title glassbox-layers-desc">
+<title id="glassbox-layers-title">Glassbox agents layer stack</title>
+<desc id="glassbox-layers-desc">Seven platform layers from model routing up to the evaluation gate, with the governance layer highlighted.</desc>
+<defs>
+<pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+<circle cx="1" cy="1" r="0.9" fill="rgba(45,49,66,0.10)"/></pattern>
+<marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+<marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+<marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+<polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+</defs>
+<rect width="100%" height="100%" fill="#f5f5f5"/>
+<rect width="100%" height="100%" fill="url(#dots)" opacity="0.55"/>
+<text x="112" y="96" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="end">nearest the model</text>
+<text x="112" y="560" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="end">nearest the auditor</text>
+<path d="M 104,112 V 540" fill="none" stroke="#7a8399" stroke-width="1" marker-end="url(#arrow)"/>
+<rect x="152" y="88" width="808" height="64" rx="4" fill="#ffffff" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+<text x="172" y="124" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" letter-spacing="0.14em">L1</text>
+<text x="240" y="125" fill="#2d3142" font-size="14" font-weight="600" font-family="'Geist', sans-serif">Models</text>
+<text x="940" y="124" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" text-anchor="end">lane router — confidential cannot reach the cloud</text>
+<rect x="152" y="160" width="808" height="64" rx="4" fill="#ffffff" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+<text x="172" y="196" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" letter-spacing="0.14em">L2</text>
+<text x="240" y="197" fill="#2d3142" font-size="14" font-weight="600" font-family="'Geist', sans-serif">Orchestration</text>
+<text x="940" y="196" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" text-anchor="end">audited loop · pipeline · fan-out · evaluator · router</text>
+<rect x="152" y="232" width="808" height="64" rx="4" fill="#ffffff" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+<text x="172" y="268" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" letter-spacing="0.14em">L3</text>
+<text x="240" y="269" fill="#2d3142" font-size="14" font-weight="600" font-family="'Geist', sans-serif">Tools</text>
+<text x="940" y="268" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" text-anchor="end">JSON schema + capability-scoped permissions</text>
+<rect x="152" y="304" width="808" height="64" rx="4" fill="#ffffff" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+<text x="172" y="340" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" letter-spacing="0.14em">L4</text>
+<text x="240" y="341" fill="#2d3142" font-size="14" font-weight="600" font-family="'Geist', sans-serif">Knowledge</text>
+<text x="940" y="340" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" text-anchor="end">chunking · embedders · vector store · citations · memory</text>
+<rect x="152" y="376" width="808" height="64" rx="4" fill="#ffffff" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+<text x="172" y="412" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" letter-spacing="0.14em">L5</text>
+<text x="240" y="413" fill="#2d3142" font-size="14" font-weight="600" font-family="'Geist', sans-serif">Guardrails</text>
+<text x="940" y="412" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" text-anchor="end">injection scan in · BSN / IBAN / PII redaction out</text>
+<rect x="152" y="448" width="808" height="64" rx="4" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.2"/>
+<text x="172" y="484" fill="#eb6c36" font-size="8.5" font-family="'Geist Mono', monospace" letter-spacing="0.14em">L6</text>
+<text x="240" y="485" fill="#2d3142" font-size="14" font-weight="600" font-family="'Geist', sans-serif">Governance</text>
+<text x="940" y="484" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" text-anchor="end">hash-chained audit · KYA registry · approval gates</text>
+<rect x="152" y="520" width="808" height="64" rx="4" fill="#ffffff" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+<text x="172" y="556" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" letter-spacing="0.14em">L7</text>
+<text x="240" y="557" fill="#2d3142" font-size="14" font-weight="600" font-family="'Geist', sans-serif">Evals</text>
+<text x="940" y="556" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" text-anchor="end">a case fails if the answer OR the chain fails</text>
+<text x="152" y="624" fill="#4f5d75" font-size="13" font-style="italic" font-family="'Instrument Serif', serif" text-anchor="start">Every layer above is importable Python; the console is a window onto the same objects, not a second implementation.</text>
+</svg>
+</div></body></html>
